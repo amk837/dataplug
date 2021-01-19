@@ -24,7 +24,12 @@ class App extends CI_Controller {
         // }
         $sess_ar = $this->session->userdata('logged_in');
         if ($sess_ar['login_verification_code']!= '') {
-           $this->session->set_flashdata('validate', array('message' => 'Limited time access , Your account not verified yet, please check your email and verify otherwise account will delete after 30 days.', 'type' => 'warning'));
+            $msg= 'Limited time access , Your account not verified yet,';
+            $msg.=' please check your email and verify otherwise account';
+            $msg.=' will delete after 30 days.';
+           $this->session->set_flashdata(
+               'validate',
+                array('message' =>$msg, 'type' => 'warning'));
         }
     }
 
@@ -44,7 +49,7 @@ class App extends CI_Controller {
      * @see http://codeigniter.com/user_guide/general/urls.html
      */
     public function index() {
-//         this method was calling again and again by list so applied logic here
+        //this method was calling again and again by list so applied logic here
         
         if (strpos($_SERVER ['SERVER_NAME'], 'monitoring.punjab') !== false) {
             if ($this->uri->segment(1) != 'apps') {
@@ -93,11 +98,27 @@ class App extends CI_Controller {
             }
 
             if ($this->acl->hasSuperAdmin()) {
-                $apps = $this->app_model->get_app_by_department_for_super($_GET['iDisplayStart'],$_GET['iDisplayLength'],$_GET['sSearch_0'],$_GET['sSearch_2'],$_GET['sSearch_3'],$_GET['iSortCol_0'],$_GET['sSortDir_0']);
-                $total_apps = $this->app_model->total_apps(null,$_GET['sSearch_0'], $_GET['sSearch_2'], $_GET['sSearch_3']);
+                $apps = $this->app_model->get_app_by_department_for_super(
+                    $_GET['iDisplayStart'],$_GET['iDisplayLength'],
+                    $_GET['sSearch_0'],$_GET['sSearch_2'],
+                    $_GET['sSearch_3'],$_GET['iSortCol_0'],
+                    $_GET['sSortDir_0']);
+                $arg1=$_GET['sSearch_0'];
+                $arg2=$_GET['sSearch_2'];
+                $arg3=$_GET['sSearch_3'];
+                $total_apps = $this->app_model->total_apps(null,$arg1,$arg2,$arg3);
             } else {
-                $apps = $this->app_model->get_app_by_user($data['login_user_id'],$_GET['iDisplayStart'],$_GET['iDisplayLength'],$_GET['sSearch_0'],$_GET['iSortCol_0'],$_GET['sSortDir_0']);
-                $total_apps = $this->app_model->total_apps($data['login_user_id'], $_GET['sSearch_0'], $_GET['sSearch_2'], $_GET['sSearch_3']);
+                $arg1=$data['login_user_id'];
+                $arg2=$_GET['iDisplayStart'];
+                $arg3=$_GET['iDisplayLength'];
+                $arg4=$_GET['sSearch_0'];
+                $arg5=$_GET['iSortCol_0'];
+                $arg6=$_GET['sSortDir_0'];
+                $apps = $this->app_model->get_app_by_user($arg1,$arg2,$arg3,$arg4,$arg5,$arg6);
+                $argument1=$data['login_user_id'], $_GET['sSearch_0'];
+                $argument2=$_GET['sSearch_2'];
+                $argument3=$_GET['sSearch_3'];
+                $total_apps = $this->app_model->total_apps($argument1,$argument2,$argument3);
             }
 //            $data2=array();
             //GET TOAL APPS...
@@ -149,12 +170,15 @@ class App extends CI_Controller {
                 //$all_forms = $this->form_model->get_form_by_app($app['id']);
                 $results_count=0;
                 foreach ($formbyapp as $forms) {
-                    //$forms_list[] = array('form_id' => $forms['form_id'], 'form_name' => $forms['form_name']);
-                    //$table_exist_bit = $this->form_results_model->check_table_exits('zform_' . $forms['form_id']);
+                    //$argument1='form_id' => $forms['form_id'];
+                    //$forms_list[] = array($argument1, 'form_name' => $forms['form_name']);
+                    //$argument='zform_' . $forms['form_id'];
+                    //$table_exist_bit = $this->form_results_model->check_table_exits($argument);
                     //if($table_exist_bit['count(*)']==1){
                     if(is_table_exist('zform_' . $forms['form_id'])){
                         //get count of records...
-                        $total=$this->form_results_model->find_record_count('zform_' . $forms['form_id']);
+                        $argument='zform_' . $forms['form_id'];
+                        $total=$this->form_results_model->find_record_count($argument);
                         $results_count+=$total;
                     }
                     if(!is_table_exist('zform_' . $forms['form_id'])) {
@@ -162,8 +186,8 @@ class App extends CI_Controller {
                     }
                 }
                 // if ($forms_list) {
-
-                //     $results_count = $this->form_results_model->get_result_is_empty($forms_list);
+                //                              
+                    //$results_count = $this->form_results_model->get_result_is_empty($forms_list);
                 // } else {
                 //     $results_count = 0;
                 // }
@@ -226,7 +250,8 @@ class App extends CI_Controller {
         session_to_page($session_data, $data);
         $department_id = $session_data['login_department_id'];
         $appinf = $this->app_model->get_app($app_id);
-        $usr_list = $this->users_model->get_user_by_department_id($appinf['department_id']);
+        $argument=$appinf['department_id'];
+        $usr_list = $this->users_model->get_user_by_department_id($argument);
         $data['usr_list'] = $usr_list;
         if ($this->input->post()) {
             $this->form_validation->set_rules('user_id', 'User Name', 'trim|required|xss_clean');
