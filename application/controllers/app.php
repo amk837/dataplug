@@ -254,7 +254,11 @@ class App extends CI_Controller {
         $usr_list = $this->users_model->get_user_by_department_id($argument);
         $data['usr_list'] = $usr_list;
         if ($this->input->post()) {
-            $this->form_validation->set_rules('user_id', 'User Name', 'trim|required|xss_clean');
+            $this->form_validation->set_rules(
+                'user_id', 
+                'User Name', 
+                'trim|required|xss_clean'
+            );
             if ($this->form_validation->run() == FALSE) {
             } else {
                 $user_id = $this->input->post('user_id');
@@ -269,14 +273,34 @@ class App extends CI_Controller {
                         'user_id' => $user_id,
                         'app_id' => $app_id
                     );
-                    //array parameters : action, description, before, after, app_id, app_name, form_id, form_name
-                    $logary = array('action' => 'insert', 'description' => 'Assigned application to other user', 'after' => json_encode($appdata), 'app_id' => $app_id,);
+                    //array parameters : 
+                    //action, 
+                    //description, 
+                    //before, 
+                    //after, 
+                    //app_id, 
+                    //app_name, 
+                    //form_id, 
+                    //form_name
+                    $logary = array(
+                        'action' => 'insert', 
+                        'description' => 'Assigned application to other user', 
+                        'after' => json_encode($appdata), 'app_id' => $app_id,
+                    );
                     addlog($logary);
                     $this->db->insert('users_app', $appdata);
-                    $this->session->set_flashdata('validate', array('message' => 'Application Assigned to User successfully', 'type' => 'success'));
+                    $msg='Application Assigned to User successfully';
+                    $this->session->set_flashdata(
+                        'validate', 
+                        array('message' => $msg, 'type' => 'success')
+                    );
                     redirect(base_url() . 'assign-applicatioin-users/' . $app_id);
                 } else {
-                    $this->session->set_flashdata('validate', array('message' => 'Application already assigned to this user', 'type' => 'error'));
+                    $msg='Application already assigned to this user';
+                    $this->session->set_flashdata(
+                        'validate', 
+                        array('message' => $msg, 'type' => 'error')
+                    );
                     redirect(base_url() . 'assign-applicatioin-users/' . $app_id);
                 }
             }
@@ -308,7 +332,10 @@ class App extends CI_Controller {
 
             $this->db->delete('users_app', array('id' => $asigned_id));
 
-            $this->session->set_flashdata('validate', array('message' => 'Asigned user deleted', 'type' => 'success'));
+            $this->session->set_flashdata(
+                'validate', 
+                array('message' => 'Asigned user deleted', 'type' => 'success')
+            );
             redirect(base_url() . 'assign-applicatioin-users/' . $app_id);
         } else {
             //If no session, redirect to login page
@@ -322,7 +349,11 @@ class App extends CI_Controller {
      */
     public function appusers() {
         if (!$this->acl->hasPermission('app_users', 'view')) {
-            $this->session->set_flashdata('validate', array('message' => "You don't have enough permissions to do this task.", 'type' => 'warning'));
+            $msg="You don't have enough permissions to do this task.";
+            $this->session->set_flashdata(
+                'validate', 
+                array('message' =>$msg , 'type' => 'warning')
+            );
             redirect('/');
         }
         $this->load->library('form_validation');
@@ -339,14 +370,32 @@ class App extends CI_Controller {
         if ($this->input->post()) {
             $app_id = $this->input->post('app_id');
             if ($this->acl->hasSuperAdmin()) {
-                $this->form_validation->set_rules('department_id', 'Department', 'trim|required|xss_clean');
+                $this->form_validation->set_rules(
+                    'department_id',
+                    'Department',
+                    'trim|required|xss_clean'
+                );
             }
-            $this->form_validation->set_rules('app_id', 'App Id', 'trim|required|xss_clean');
-            $this->form_validation->set_rules('name', 'First Name', 'trim|required|min_length[1]|xss_clean');
-            $this->form_validation->set_rules('town', 'district', 'Last Name', 'trim|required|min_length[1]|xss_clean');
+            $this->form_validation->set_rules(
+                'app_id', 
+                'App Id',
+                'trim|required|xss_clean'
+            );
+            $this->form_validation->set_rules(
+                'name', 
+                'First Name',
+                'trim|required|min_length[1]|xss_clean'
+            );
+            $this->form_validation->set_rules(
+                'town', 
+                'district', 
+                'Last Name',
+                'trim|required|min_length[1]|xss_clean'
+            );
             if($this->input->post('login_user') == '')
             {
-                $this->form_validation->set_rules('imei_no', 'IMEI #', 'trim|required|callback_appuser_imei_already_exist[' . $app_id . ']');
+                $arg3= 'trim|required|callback_appuser_imei_already_exist[' . $app_id . ']';
+                $this->form_validation->set_rules('imei_no', 'IMEI #',$arg3);
             }
             else{
                 
