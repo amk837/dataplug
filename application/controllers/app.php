@@ -399,12 +399,19 @@ class App extends CI_Controller {
             }
             else{
                 
-                $this->form_validation->set_rules('login_user', 'User Name', 'trim|required|callback_appuser_login_name_already_exist');
+                $this->form_validation->set_rules(
+                    'login_user', 
+                    'User Name', 
+                    'trim|required|callback_appuser_login_name_already_exist'
+                );
             }
 
             if ($this->form_validation->run() == FALSE) {
                 $batch = array($this->input->post('department_id'));
-                $this->session->set_flashdata('validate', array('message' => "User must enter required field(s).", 'type' => 'warning'));
+                $this->session->set_flashdata(
+                    'validate', 
+                    array('message'=>"User must enter required field(s).",'type' => 'warning')
+                );
             } else {
                 if ($this->acl->hasSuperAdmin()) {
                     $department_id = $this->input->post('department_id');
@@ -430,12 +437,29 @@ class App extends CI_Controller {
                     'login_password' => $this->input->post('login_password'),
                     'mobile_number' => $this->input->post('mobile_number')
                 );
-                //array parameters : action, description, before, after, app_id, app_name, form_id, form_name
-                $logary = array('action' => 'insert', 'description' => 'app-users', 'after' => json_encode($appdata), 'app_id' => $app_id,);
+                //array parameters : 
+                //action, 
+                //description, 
+                //before, 
+                //after, 
+                //app_id, 
+                //app_name, 
+                //form_id, 
+                //form_name
+                $logary = array(
+                    'action' => 'insert', 
+                    'description' => 'app-users', 
+                    'after' => json_encode($appdata), 
+                    'app_id' => $app_id,
+                );
                 addlog($logary);
 
                 $this->db->insert('app_users', $appdata);
-                $this->session->set_flashdata('validate', array('message' => 'Application User added successfully', 'type' => 'success'));
+                $msg='Application User added successfully';
+                $this->session->set_flashdata(
+                    'validate', 
+                    array('message' => $msg, 'type' => 'success')
+                );
                 redirect(base_url() . 'applicatioin-users');
             }
         }
@@ -447,9 +471,18 @@ class App extends CI_Controller {
             $dep[$row['id']] = $row['name'];
         }
         if ($this->acl->hasSuperAdmin()) {
-            $app_user_list = $this->app_users_model->get_app_user_listing($data['login_department_id']);
+            $arg1=$data['login_department_id'];
+            $app_user_list = $this->app_users_model->get_app_user_listing($arg1);
         }else{
-            $app_user_list = $this->app_users_model->get_app_user_listing($data['login_department_id'],null,null,null,null,null,$app_list);
+            $app_user_list = $this->app_users_model->get_app_user_listing(
+                $data['login_department_id'],
+                null,
+                null,
+                null,
+                null,
+                null,
+                $app_list
+            );
         }
         $data['app_user_list'] = $app_user_list;
         $data['departments'] = $dep;
@@ -469,7 +502,10 @@ class App extends CI_Controller {
     public function ajaxappusers() {
 
         if (!$this->acl->hasPermission('app_users', 'view')) {
-            $this->session->set_flashdata('validate', array('message' => "You don't have enough permissions to do this task.", 'type' => 'warning'));
+            $msg="You don't have enough permissions to do this task.";
+            $this->session->set_flashdata(
+                'validate', 
+                array('message' => $msg, 'type' => 'warning'));
             redirect('/');
         }
         $this->load->library('form_validation');
@@ -492,8 +528,17 @@ class App extends CI_Controller {
             $dep[$row['id']] = $row['name'];
         }
 
-        $app_user_list = $this->app_users_model->get_app_user_listing($data['login_department_id'],$_GET['iDisplayStart'],$_GET['iDisplayLength'],$_GET['sSearch'],$_GET['iSortCol_0'],$_GET['sSortDir_0'],$app_list);
-        $total_apps_users = $this->app_users_model->get_app_user_total($data['login_department_id'],$_GET['sSearch']);
+        $app_user_list = $this->app_users_model->get_app_user_listing(
+            $data['login_department_id'],
+            $_GET['iDisplayStart'],
+            $_GET['iDisplayLength'],
+            $_GET['sSearch'],
+            $_GET['iSortCol_0'],
+            $_GET['sSortDir_0'],$app_list
+        );
+        $total_apps_users = $this->app_users_model->get_app_user_total(
+            $data['login_department_id'],$_GET['sSearch']
+        );
 //        making array for ajax datatable...
         $data2= array("sEcho" => intval($_GET['sEcho']),
             "iTotalRecords" => $total_apps_users,
@@ -535,7 +580,10 @@ class App extends CI_Controller {
     public function appusersimportcsv(){
 
              if (!$this->acl->hasPermission('app_users', 'add')) {
-                $this->session->set_flashdata('validate', array('message' => "You don't have enough permissions to do this task.", 'type' => 'warning'));
+                $msg="You don't have enough permissions to do this task.";
+                $this->session->set_flashdata(
+                    'validate', 
+                    array('message' => $msg, 'type' => 'warning'));
                 redirect('/');
             }
             $this->load->library('form_validation');
@@ -548,7 +596,11 @@ class App extends CI_Controller {
             }
             if ($this->input->post()) {
                 if ($this->acl->hasSuperAdmin()) {
-                        $this->form_validation->set_rules('department_id_import', 'Department', 'trim|required|xss_clean');
+                        $this->form_validation->set_rules(
+                            'department_id_import', 
+                            'Department', 
+                            'trim|required|xss_clean'
+                        );
                 }
                 $this->form_validation->set_rules('app_id_import', 'App Id', 'trim|required|xss_clean');
 
